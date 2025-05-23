@@ -2,17 +2,17 @@ import streamlit as st
 from PIL import Image
 import io
 
-st.title("圖片合併工具")
+st.title("Image Merger Tool")
 
-# 上傳多張圖片
-uploaded_files = st.file_uploader("選擇圖片", type=['jpg', 'jpeg', 'png', 'gif', 'bmp'], accept_multiple_files=True)
+# Upload multiple images
+uploaded_files = st.file_uploader("Select images", type=['jpg', 'jpeg', 'png', 'gif', 'bmp'], accept_multiple_files=True)
 
-# 選擇合併方向
-merge_direction = st.radio("合併方向", ("上下合併", "左右合併"))
+# Choose merge direction
+merge_direction = st.radio("Merge direction", ("Vertical", "Horizontal"))
 
 def merge_images(images, direction):
-    if direction == "上下合併":
-        # 垂直合併 (上下)
+    if direction == "Vertical":
+        # Vertical merge (top to bottom)
         widths, heights = zip(*(i.size for i in images))
         max_width = max(widths)
         total_height = sum(heights)
@@ -25,7 +25,7 @@ def merge_images(images, direction):
             y_offset += img.size[1]
 
     else:
-        # 水平合併 (左右)
+        # Horizontal merge (left to right)
         widths, heights = zip(*(i.size for i in images))
         total_width = sum(widths)
         max_height = max(heights)
@@ -46,21 +46,21 @@ if uploaded_files:
             image = Image.open(uploaded_file)
             images.append(image)
     except Exception as e:
-        st.error(f"無法開啟圖片: {e}")
+        st.error(f"Failed to open image: {e}")
 
     if len(images) < 2:
-        st.warning("需要至少兩張圖片才能合併。")
+        st.warning("You need at least two images to merge.")
     else:
-        if st.button("合併圖片"):
+        if st.button("Merge Images"):
             merged_image = merge_images(images, merge_direction)
-            st.image(merged_image, caption="合併後的圖片", use_column_width=True)
+            st.image(merged_image, caption="Merged Image", use_column_width=True)
 
-            # 讓使用者下載合併後的圖片
+            # Allow user to download the merged image
             buf = io.BytesIO()
             merged_image.save(buf, format="JPEG")
             byte_im = buf.getvalue()
             st.download_button(
-                label="下載合併後的圖片",
+                label="Download Merged Image",
                 data=byte_im,
                 file_name="merged_image.jpg",
                 mime="image/jpeg"
